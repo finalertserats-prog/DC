@@ -1,0 +1,181 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+*.py,cover
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Redis
+dump.rdb
+*.rdb
+
+# Docker
+.dockerignore
+
+# Application specific
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets and credentials (extra safety)
+secrets/
+credentials/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Package files
+*.whl
+*.tar.gz
+
+# Documentation builds
+docs/_build/
+site/
+
+# Local configuration overrides
+local_settings.py
+local_config.py
+
+# Test artifacts
+test-results/
+.pytest_cache/
+.coverage.*
+coverage.xml
+*.coverage
+
+# Type checking
+.pytype/
+.pyre/
+
+# FastAPI specific
+*.db-journal
+
+# Teams bot specific (removed)
+manifest.json.backup
+*.zip
+app-package/
+
+# Claude Code local settings
+.claude/
+
+# Ngrok
+ngrok.log
+.ngrok/
+
+# Local development
+local/
+dev/
+*.local
+
+# Documentation (local/private)
+mydocs/
+
+# Node / React (tabs build)
+tabs/node_modules/
+tabs/dist/
+tabs/.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime attachment cache
+.attachments_cache/
+
+# Dev/debug scripts (generated during development)
+check_schema*.py
+diagnose_*.py
+find_*.py
+inspect_*.py
+verify_init.py
+test_*.py
+test_*.png
+labiq_cols.txt

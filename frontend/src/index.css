@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  /* Light mode */
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 231 75% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 222 47% 20%;
+
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 231 75% 66%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 231 75% 66%;
+
+    --radius: 0.75rem;
+
+    --tile-profiler: 199 89% 48%;
+    --tile-migration: 262 83% 58%;
+    --tile-application: 142 71% 45%;
+    --tile-dataviz: 25 95% 53%;
+
+    --sidebar-background: 210 20% 96%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 231 75% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 92%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 210 20% 88%;
+    --sidebar-ring: 231 75% 66%;
+  }
+
+  /* Dark mode — Data Migrator palette (#1e1e1e bg, #667eea brand) */
+  .dark {
+    --background: 0 0% 12%;
+    --foreground: 210 20% 92%;
+
+    --card: 0 0% 16%;
+    --card-foreground: 210 20% 92%;
+
+    --popover: 0 0% 16%;
+    --popover-foreground: 210 20% 92%;
+
+    --primary: 231 75% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 210 20% 92%;
+
+    --muted: 0 0% 18%;
+    --muted-foreground: 215 15% 55%;
+
+    --accent: 231 75% 66%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 231 75% 66%;
+
+    --tile-profiler: 199 89% 48%;
+    --tile-migration: 262 83% 58%;
+    --tile-application: 142 71% 45%;
+    --tile-dataviz: 25 95% 53%;
+
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 231 75% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 231 75% 66%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+}

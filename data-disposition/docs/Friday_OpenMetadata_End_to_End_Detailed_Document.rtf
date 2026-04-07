@@ -1,0 +1,147 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Calibri;}{\f1 Consolas;}}
+\fs24
+\b Friday + OpenMetadata + Snowflake: Detailed End-to-End Document\b0\par
+\par
+\b 1) Objective\b0\par
+This document explains the complete runtime flow for Friday (Teams bot), including OpenMetadata integration, Redis caching behavior, LLM orchestration, SQL execution in Snowflake, tool usage, and operational best practices.\par
+\par
+\b 2) Current Environment (Configured)\b0\par
+- Teams bot endpoint through ngrok tunnel to local gateway\par
+- Gateway server: FastAPI + Bot Framework adapter\par
+- LLM: openai-compatible endpoint (gpt-4o-mini)\par
+- OpenMetadata URL: http://65.21.48.174:8585\par
+- OpenMetadata database schema FQN: Teams_Gateway.ONSEMI.LABIQ\par
+- Snowflake DB/Schema: ONSEMI / LABIQ\par
+- Redis: redis://localhost:6379/0\par
+\par
+\b 3) High-Level Architecture\b0\par
+\par
+{\f1
+User (Teams)\line
+  -> Bot Framework Service\line
+  -> Teams Gateway (FastAPI + Bot Handler)\line
+  -> Agent Runtime\line
+      -> OpenMetadata Client (schema + tags + metadata)\line
+      -> Redis Cache (schema/context/history/state/tokens)\line
+      -> LLM Planning + Tool Calls\line
+      -> Snowflake Executor (read-only SQL)\line
+  -> Streaming response back to Teams\line
+}\par
+\par
+\b 4) End-to-End Runtime Flow (Sample)\b0\par
+\b User query:\b0  "What are the top 5 products by total revenue?"\par
+\par
+\b Step 1: Teams ingress\b0\par
+1. User sends message in Teams.\par
+2. Bot Framework validates incoming token and forwards activity payload to gateway endpoint.\par
+\par
+\b Step 2: Handler pre-processing\b0\par
+1. Gateway extracts user id + conversation id.\par
+2. AAD id is mapped to email using AAD_TO_EMAIL mapping.\par
+3. Handler starts streamed reply placeholder and invokes agent runtime.\par
+\par
+\b Step 3: Agent bootstrapping\b0\par
+1. Agent checks if conversation is new.\par
+2. Agent requests schema context from OpenMetadata client.\par
+\par
+\b Step 4: Schema resolution with cache\b0\par
+1. OpenMetadata client checks Redis key: tmcp:om:schema_context.\par
+2. If cache hit: returns schema immediately (no OpenMetadata API call).\par
+3. If cache miss: calls OpenMetadata APIs, builds schema context, stores in Redis with TTL.\par
+\par
+\b Step 5: LLM planning\b0\par
+1. Agent sends system prompt + schema context + user message to LLM.\par
+2. LLM chooses tool call (execute_sql) with read-only SQL.\par
+\par
+\b Step 6: SQL safety + execution\b0\par
+1. SQL validator enforces read-only policy (SELECT/WITH/SHOW/DESCRIBE/EXPLAIN only).\par
+2. Snowflake executor runs validated SQL on ONSEMI.LABIQ.\par
+3. Result is normalized and returned to agent.\par
+\par
+\b Step 7: Final response generation\b0\par
+1. Tool result is sent back to LLM.\par
+2. LLM formats concise Teams-friendly output (table/summary).\par
+3. Gateway streams final answer to Teams user.\par
+\par
+\b 5) Redis: What is Cached and Why\b0\par
+\par
+\b Key\tab Purpose\tab Typical TTL\b0\par
+- tmcp:om:schema_context\tab formatted schema context for prompt\tab OPENMETADATA_SCHEMA_CACHE_TTL (currently 300s)\par
+- tmcp:om:tables\tab raw table metadata payload\tab OPENMETADATA_SCHEMA_CACHE_TTL\par
+- tmcp:om:jwt_token\tab OpenMetadata login token\tab ~3000s (50 min)\par
+- tmcp:conv:*\tab conversation history\tab HISTORY_TTL_SECS\par
+- tmcp:state:*\tab per-conversation state (last rows, etc.)\tab conversation lifecycle\par
+\par
+\b Important behavior\b0\par
+Redis is always checked first, even for first-time user messages.\par
+- First ever request after flush: cache miss -> fetch from OpenMetadata -> cache.\par
+- Subsequent requests before TTL expiry: cache hit -> no OpenMetadata call.\par
+- After TTL expiry: cache miss again -> refresh from OpenMetadata.\par
+\par
+\b 6) Why OpenMetadata (vs direct Snowflake metadata only)\b0\par
+Direct Snowflake metadata browsing typically gives tables, columns, and data types.\par
+OpenMetadata adds governance and semantic intelligence:\par
+- Column/table descriptions (business meaning)\par
+- PII/sensitivity tags and classifications\par
+- Lineage information\par
+- Ownership + stewardship context\par
+- Profiling + quality metadata\par
+- Unified catalog across multiple systems\par
+\par
+\b Top 10 high-value OpenMetadata capabilities\b0\par
+1. Auto-discovery ingestion\par
+2. PII/sensitivity classification\par
+3. Lineage visibility\par
+4. Data quality integration\par
+5. Profiling statistics\par
+6. Business glossary mapping\par
+7. Multi-source catalog\par
+8. Governance policies\par
+9. Alerts/monitoring\par
+10. Usage insights\par
+\par
+\b 7) Tools in Friday Runtime\b0\par
+- execute_sql: Executes validated read-only SQL in Snowflake.\par
+- local__to_csv: Exports table-like output to CSV attachment.\par
+- local__chart: Produces chart image from tabular result sets.\par
+- teams__get_chat_summary: Reads Teams messages for summarization/analysis.\par
+\par
+\b 8) Security and Guardrails\b0\par
+1. Token validation at Bot Framework ingress.\par
+2. Read-only SQL guardrails in validator.\par
+3. Rate limits + request body limits.\par
+4. Audit logging and telemetry around tool calls/errors.\par
+5. Conversation and metadata caching with TTL controls.\par
+\par
+\b 9) Operational Notes\b0\par
+- If schema changes in OpenMetadata are not reflected immediately, wait for TTL expiry or clear Redis.\par
+- If chart/file preview breaks in Teams, verify attachment handling path and Teams-compatible URL/content type behavior.\par
+- Keep OpenMetadata token and schema cache TTLs tuned for performance vs freshness.\par
+\par
+\b 10) Troubleshooting Quick Guide\b0\par
+\b Symptom:\b0  "No tables available"\par
+\b Check:\b0  OPENMETADATA_DATABASE_FQN and OpenMetadata permissions/service names.\par
+\par
+\b Symptom:\b0  SQL compilation errors using service-prefixed names\par
+\b Check:\b0  Ensure LLM uses Snowflake table names directly and not OpenMetadata service namespace in SQL.\par
+\par
+\b Symptom:\b0  Slow first response\par
+\b Check:\b0  This is expected on cache miss (OpenMetadata fetch + token refresh).\par
+\par
+\b Symptom:\b0  Metadata appears stale\par
+\b Check:\b0  OPENMETADATA_SCHEMA_CACHE_TTL and Redis key refresh behavior.\par
+\par
+\b 11) Recommended Defaults\b0\par
+- OPENMETADATA_SCHEMA_CACHE_TTL=300 (balanced freshness/performance)\par
+- HISTORY_MAX_TURNS=30 (good short-term memory window)\par
+- SNOWFLAKE_QUERY_TIMEOUT_SECS=60 (reasonable ceiling)\par
+- RATE_LIMIT_* tuned by expected user concurrency\par
+\par
+\b 12) Final Summary\b0\par
+Friday uses OpenMetadata as the semantic control plane and Snowflake as the execution plane.\par
+Redis provides low-latency caching for schema, tokens, and conversation state.\par
+The result is a governed, read-only, context-aware assistant that answers data questions safely in Teams.\par
+\par
+\b End of document\b0\par
+}

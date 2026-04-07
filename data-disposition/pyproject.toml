@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "friday-gateway"
+version = "0.2.0"
+description = "Microsoft Teams bot → LiteLLM model → Friday Gateway"
+authors = [{name = "Amrit"}]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["friday_gateway*"]
