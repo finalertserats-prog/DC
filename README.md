@@ -19,7 +19,7 @@ Includes **DataWizz**, an AI-powered dashboard builder that uses a 3-agent LLM p
 - Scheduled cron observability jobs
 - Excel data dictionary export
 
----
+----
 
 ## Architecture
 
